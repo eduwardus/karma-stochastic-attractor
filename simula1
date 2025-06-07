@@ -1,0 +1,23 @@
+import numpy as np
+
+# Parámetros ajustados
+kappa, gamma_m = 0.5, 0.1
+beta_AP, theta = 0.6, 2.0
+C = np.full((N, N), 0.2) - np.diag(np.ones(N)) * 0.2  # Matriz de envidia
+
+def avaricia(m_i, m0=5):
+    return 1 / (1 + np.exp(-0.5 * (m_i - m0)))
+
+# Simulación
+for t in range(steps):
+    # Actualizar mérito y avaricia
+    dm = kappa * A - gamma_m * m * (1 + np.tanh(w)) - 0.05 * V * m
+    m += dm * dt
+    
+    # Actualizar vulnerabilidad (pretas)
+    dV = 0.1 * V + 0.4 * V * E_delay + theta * avaricia(m) - 0.05 * w * V
+    V += dV * dt + 0.1 * V * np.random.normal(0, dt, N)
+    
+    # Clipping y transiciones
+    m = np.clip(m, 0, 20)
+    V = np.clip(V, 0, 100)
